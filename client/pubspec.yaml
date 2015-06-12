@@ -1,0 +1,3 @@
+name: carm
+dependencies:
+  browser: any
