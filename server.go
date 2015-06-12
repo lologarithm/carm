@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os/exec"
+	"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -29,9 +31,12 @@ func handleSession(ws *websocket.Conn) {
 			break
 		}
 
-		// TODO: Main Logic Here.
 		if wrapper.Command == "lock" {
-
+			lockCmd := exec.Cmd{}
+			go func() {
+				time.Sleep(time.Second * 3)
+				lockCmd.Run() // this locks the computer!
+			}()
 		} else if wrapper.Command == "unlock" {
 
 		}
