@@ -35,11 +35,15 @@ func handleSession(ws *websocket.Conn) {
 		if wrapper.Command == "lock" {
 			lockCmd := exec.Command("gnome-screensaver-command", "-l")
 			speakCmd := exec.Command("spd-say", "-r", "-50", "ALERT ALERT ALERT. Colby step away from the computer. ALERT ALERT ALERT ALERT.")
+			pictureCmd := exec.Command("fswebcam", "-r", "1280x720", "--jpeg", "90", "perp.jpg")
 			go func() {
 				speakCmd.Run()
 			}()
 			go func() {
-				time.Sleep(time.Second * 3)
+				pictureCmd.Run()
+			}()
+			go func() {
+				time.Sleep(time.Second)
 				lockCmd.Run() // this locks the computer!
 			}()
 		} else if wrapper.Command == "unlock" {
