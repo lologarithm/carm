@@ -32,7 +32,11 @@ func handleSession(ws *websocket.Conn) {
 		}
 
 		if wrapper.Command == "lock" {
-			lockCmd := exec.Cmd{}
+			lockCmd := exec.Command("gnome-screensaver-command", "-l")
+			speakCmd := exec.Command("spd-say", "ALERT ALERT ALERT. Colby step away from the computer.")
+			go func() {
+				speakCmd.Run()
+			}()
 			go func() {
 				time.Sleep(time.Second * 3)
 				lockCmd.Run() // this locks the computer!
