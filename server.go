@@ -24,13 +24,14 @@ func handleSession(ws *websocket.Conn) {
 	}
 
 	wrapper := &NetworkWrapper{}
+	log.Printf("Starting listener for: %s", ws)
 	for {
 		err := session.jsonDecoder.Decode(wrapper)
 		if err != nil {
 			log.Printf("Failed to read from socket, closing down: %s", err)
 			break
 		}
-
+		log.Printf("Message: %v", wrapper)
 		if wrapper.Command == "lock" {
 			lockCmd := exec.Command("gnome-screensaver-command", "-l")
 			speakCmd := exec.Command("spd-say", "ALERT ALERT ALERT. Colby step away from the computer.")
