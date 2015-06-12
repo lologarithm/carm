@@ -7,11 +7,11 @@ class Network {
   }
 
   lock() {
-    ws.send({"command":"lock"});
+    ws.send(JSON.encode({"command":"lock"}));
   }
 
   unlock() {
-    ws.send({"command": "unlock"});
+    ws.send(JSON.encode({"command": "unlock"}));
   }
 }
 
