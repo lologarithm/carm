@@ -24,17 +24,17 @@ func handleSession(ws *websocket.Conn) {
 	}
 
 	wrapper := &NetworkWrapper{}
-	log.Printf("Starting listener for: %s", ws)
+	log.Printf("Starting listener for: %s", ws.RemoteAddr())
 	for {
 		err := session.jsonDecoder.Decode(wrapper)
 		if err != nil {
 			log.Printf("Failed to read from socket, closing down: %s", err)
 			break
 		}
-		log.Printf("Message: %v", wrapper)
+		log.Printf("Message: '%s'", wrapper.Command)
 		if wrapper.Command == "lock" {
 			lockCmd := exec.Command("gnome-screensaver-command", "-l")
-			speakCmd := exec.Command("spd-say", "ALERT ALERT ALERT. Colby step away from the computer.")
+			speakCmd := exec.Command("spd-say", "-r", "-50", "ALERT ALERT ALERT. Colby step away from the computer. ALERT ALERT ALERT ALERT.")
 			go func() {
 				speakCmd.Run()
 			}()
@@ -50,7 +50,7 @@ func handleSession(ws *websocket.Conn) {
 }
 
 type NetworkWrapper struct {
-	Command string `json:"commmand"`
+	Command string `json:"command"`
 }
 
 // Session represents a connection between server and client.
