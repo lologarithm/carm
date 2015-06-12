@@ -2,7 +2,7 @@ part of carm;
 
 class Network {
   WebSocket ws;
-  connect() {
+  Network() {
     ws = new WebSocket('ws://127.0.0.1:9876/ws');
   }
 
