@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	http.Handle("/direct", websocket.Handler(handleSession))
+	http.Handle("/ws", websocket.Handler(handleSession))
 
 	http.ListenAndServe(":9876", nil)
 }
@@ -30,11 +30,17 @@ func handleSession(ws *websocket.Conn) {
 		}
 
 		// TODO: Main Logic Here.
+		if wrapper.Command == "lock" {
+
+		} else if wrapper.Command == "unlock" {
+
+		}
 	}
 	session.socketConn.WriteClose(1)
 }
 
 type NetworkWrapper struct {
+	Command string `json:"commmand"`
 }
 
 // Session represents a connection between server and client.
