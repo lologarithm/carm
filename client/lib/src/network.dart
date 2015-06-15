@@ -22,8 +22,8 @@ class Network {
     ws.send(JSON.encode({"command":"lock"}));
   }
 
-  unlock() {
-    ws.send(JSON.encode({"command": "unlock"}));
+  disarm() {
+    ws.send(JSON.encode({"command": "disarm"}));
   }
 }
 
