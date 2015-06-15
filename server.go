@@ -16,6 +16,8 @@ func main() {
 	http.ListenAndServe(":9876", nil)
 }
 
+var pingTime = time.Second
+
 func handleSession(ws *websocket.Conn) {
 	session := &Session{
 		socketConn:  ws,
@@ -25,32 +27,40 @@ func handleSession(ws *websocket.Conn) {
 
 	wrapper := &NetworkWrapper{}
 	log.Printf("Starting listener for: %s", ws.RemoteAddr())
+	pinger := time.AfterFunc(pingTime, RunLock)
 	for {
 		err := session.jsonDecoder.Decode(wrapper)
 		if err != nil {
 			log.Printf("Failed to read from socket, closing down: %s", err)
 			break
 		}
-		log.Printf("Message: '%s'", wrapper.Command)
 		if wrapper.Command == "lock" {
-			lockCmd := exec.Command("gnome-screensaver-command", "-l")
-			speakCmd := exec.Command("spd-say", "-r", "-50", "ALERT ALERT ALERT. Colby step away from the computer. ALERT ALERT ALERT ALERT.")
-			pictureCmd := exec.Command("fswebcam", "-r", "1280x720", "--jpeg", "90", "perp.jpg")
-			go func() {
-				speakCmd.Run()
-			}()
-			go func() {
-				pictureCmd.Run()
-			}()
-			go func() {
-				time.Sleep(time.Second)
-				lockCmd.Run() // this locks the computer!
-			}()
+			log.Printf("LOCKING IT DOWN")
+			RunLock()
 		} else if wrapper.Command == "unlock" {
-
+			log.Printf("Unlocking!")
+			pinger.Stop()
+		} else if wrapper.Command == "ping" {
+			pinger.Reset(pingTime)
 		}
 	}
 	session.socketConn.WriteClose(1)
+}
+
+func RunLock() {
+	lockCmd := exec.Command("gnome-screensaver-command", "-l")
+	speakCmd := exec.Command("spd-say", "-r", "-50", "ALERT ALERT ALERT. Colby step away from the computer. ALERT ALERT ALERT ALERT.")
+	pictureCmd := exec.Command("fswebcam", "-r", "1280x720", "--jpeg", "90", "perp.jpg")
+	go func() {
+		speakCmd.Run()
+	}()
+	go func() {
+		pictureCmd.Run()
+	}()
+	go func() {
+		time.Sleep(time.Second)
+		lockCmd.Run() // this locks the computer!
+	}()
 }
 
 type NetworkWrapper struct {
