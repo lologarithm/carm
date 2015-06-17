@@ -10,19 +10,22 @@ class Network {
   }
 
   handleOpened(_) {
-	  sendPing();
+    sendPing();
   }
 
   sendPing() {
-	  ws.send(JSON.encode({"command":"ping"}));
-	  pinger = new Timer(new Duration(milliseconds: 250), sendPing);
+    ws.send(JSON.encode({"command": "ping"}));
+    pinger = new Timer(new Duration(milliseconds: 250), sendPing);
   }
 
   lock() {
-    ws.send(JSON.encode({"command":"lock"}));
+    ws.send(JSON.encode({"command": "lock"}));
   }
 
   disarm() {
+    if (pinger != null) {
+      pinger.cancel();
+    }
     ws.send(JSON.encode({"command": "disarm"}));
   }
 }

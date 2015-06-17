@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os/exec"
@@ -17,6 +18,7 @@ func main() {
 }
 
 var pingTime = time.Second
+var numPerps = 0
 
 func handleSession(ws *websocket.Conn) {
 	session := &Session{
@@ -27,7 +29,10 @@ func handleSession(ws *websocket.Conn) {
 
 	wrapper := &NetworkWrapper{}
 	log.Printf("Starting listener for: %s", ws.RemoteAddr())
-	pinger := time.AfterFunc(pingTime, RunLock)
+	pinger := time.AfterFunc(pingTime, func() {
+		log.Printf("No ping after %d seconds!", pingTime/time.Second)
+		RunLock()
+	})
 	for {
 		err := session.jsonDecoder.Decode(wrapper)
 		if err != nil {
@@ -37,8 +42,8 @@ func handleSession(ws *websocket.Conn) {
 		if wrapper.Command == "lock" {
 			log.Printf("LOCKING IT DOWN")
 			RunLock()
-		} else if wrapper.Command == "unlock" {
-			log.Printf("Unlocking!")
+		} else if wrapper.Command == "disarm" {
+			log.Printf("Disarming deadman switch!")
 			pinger.Stop()
 		} else if wrapper.Command == "ping" {
 			pinger.Reset(pingTime)
@@ -50,7 +55,8 @@ func handleSession(ws *websocket.Conn) {
 func RunLock() {
 	lockCmd := exec.Command("gnome-screensaver-command", "-l")
 	speakCmd := exec.Command("spd-say", "-r", "-50", "ALERT ALERT ALERT. Colby step away from the computer. ALERT ALERT ALERT ALERT.")
-	pictureCmd := exec.Command("fswebcam", "-r", "1280x720", "--jpeg", "90", "perp.jpg")
+	pictureCmd := exec.Command("fswebcam", "-r", "1280x720", "--jpeg", "90", fmt.Sprintf("perps/perp%d.jpg", numPerps))
+	numPerps++
 	go func() {
 		speakCmd.Run()
 	}()
