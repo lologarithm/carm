@@ -26,4 +26,3 @@ class Network {
     ws.send(JSON.encode({"command": "unlock"}));
   }
 }
-
